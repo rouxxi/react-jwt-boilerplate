@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const Users = () => {
@@ -5,7 +6,28 @@ const Users = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    // Your code here
+    const { REACT_APP_SERVER_ADDRESS } = process.env;
+    const token = localStorage.getItem("token");
+    axios
+      .get(`${REACT_APP_SERVER_ADDRESS}/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => res.data)
+      .then((data) => {
+        setUsers(data);
+      })
+      .catch((err) => {
+        let message;
+        if (err.response.status === 401) {
+          message = "You're not authorized to access these datas";
+        } else {
+          message = err.response.data.errorMessage;
+        }
+        alert(message);
+        console.error(err);
+      });
   }, []);
 
   return (
